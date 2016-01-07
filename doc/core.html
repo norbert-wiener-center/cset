@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="core"><a href="#top">Core</a></h1>
+<p><em>The core functions of the CS-ET library.</em></p>
+<h4 id="back"><a href="main.md#top">Back</a></h4>
+<h2 id="contents"><a href="#contents">Contents</a></h2>
+<p><a href="#cset">cset</a></p>
+<p><a href="#cset3">cset3</a></p>
+<p><a href="#cset_parameters">cset_parameters</a></p>
+<p><a href="#get_projs">get_projs</a></p>
+<p><a href="#radon3">radon3</a></p>
+<p><a href="#setup_pool">setup_pool</a></p>
+<p><a href="#wbp3">wbp3</a></p>
+<hr />
+<h2 id="cset"><a href="#cset">cset</a></h2>
+<p><strong>cset</strong> creates a 2D image array reconstructed from Radon transform data (i.e. parallel-beam STEM tilt series data) via CS-ET - an <em>L<sup>1</sup></em>-regularized least-squares reconstruction algorithm. STEM data must be preprocessed using e.g. <a href="http://bio3d.colorado.edu/imod/">IMOD</a> prior to use with this function.</p>
+<h4 id="usage">Usage</h4>
+<p>u = <strong>cset</strong>(proj, params) performs a reconstruction using several parameters saved in a struct (params), described in the <strong>Input</strong> section below.</p>
+<h4 id="input">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">proj</td>
+<td align="left">[N,T] array of T 2D Radon transform measurements, each size N.</td>
+</tr>
+<tr class="even">
+<td align="left">params</td>
+<td align="left">Struct containing fields .b, .theta, .M, .N, .mu, .lambda, .gamma, .kappa, .n_inner, .n_outer, and optionally, .cg_tol, .max_cgiter, .gpu_flag, .im_flag, .anim_flag, whose uses are described below.</td>
+</tr>
+<tr class="odd">
+<td align="left">.b</td>
+<td align="left">Reconstruction background value. Estimate this a priori.</td>
+</tr>
+<tr class="even">
+<td align="left">.theta</td>
+<td align="left">[T,1] vector of Radon projection angles in the range [-90<sup>o</sup>, 90<sup>o</sup>].</td>
+</tr>
+<tr class="odd">
+<td align="left">.M</td>
+<td align="left">Reconstruction array depth (z dimension) (number of rows).</td>
+</tr>
+<tr class="even">
+<td align="left">.N</td>
+<td align="left">Reconstruction array width (x dimension) (number of columns).</td>
+</tr>
+<tr class="odd">
+<td align="left">.mu</td>
+<td align="left">Split-Bregman parameter - controls u's update step size.</td>
+</tr>
+<tr class="even">
+<td align="left">.lambda</td>
+<td align="left">Split-Bregman parameter - TV regularization weight.</td>
+</tr>
+<tr class="odd">
+<td align="left">.gamma</td>
+<td align="left">Split-Bregman parameter - Identity L1 regularization weight.</td>
+</tr>
+<tr class="even">
+<td align="left">.kappa</td>
+<td align="left">Split-Bregman parameter - DWT L1 regularization weight.</td>
+</tr>
+<tr class="odd">
+<td align="left">.n_inner</td>
+<td align="left">Number of inner loop iterations.</td>
+</tr>
+<tr class="even">
+<td align="left">.n_outer</td>
+<td align="left">Number of outer (Bregman) loop iterations.</td>
+</tr>
+<tr class="odd">
+<td align="left">.cg_tol</td>
+<td align="left">(OPTIONAL=1e-4) Conjugate gradient stopping tolerance.</td>
+</tr>
+<tr class="even">
+<td align="left">.max_cgiter</td>
+<td align="left">(OPTIONAL=12) Maximum CG iterations before termination.</td>
+</tr>
+<tr class="odd">
+<td align="left">.gpu_flag</td>
+<td align="left">(OPTIONAL=true) If true, use CUDA Radon and adjoint Radon transforms. <strong>cset</strong> will only use GPU capabilities if MATLAB detects a CUDA-capable device.</td>
+</tr>
+<tr class="even">
+<td align="left">.im_flag</td>
+<td align="left">(OPTIONAL=false) If true, display u after each update iteration.</td>
+</tr>
+<tr class="odd">
+<td align="left">.anim_flag</td>
+<td align="left">(OPTIONAL=false) If true, return an [M,N,n_inner*n_outer] array containing each iteration of u.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">u</td>
+<td align="left">If anim_flag is false, an [M,N] array containing the reconstruction data at the final iteration of the algorithm. If anim_flag is true, an [M,N,n_inner*n_outer] array containing the reconstruction data after every iteration of the algorithm.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cset3"><a href="#cset3">cset3</a></h2>
+<p><strong>cset3</strong> performs a CS-ET reconstruction of a 3D tomographic volume from a STEM tilt series, by decomposing the 3D volume into parallel 2D slices normal to the tilt series axis of rotation and running <a href="#cset">cset</a> on each of them.</p>
+<h4 id="usage-1">Usage</h4>
+<p><strong>cset3</strong>(projs, params) performs a reconstruction from measurements (projs) using parameters saved in struct 'params'. See the <strong>Input</strong> section of <a href="#cset">cset</a> for a definition of the fields which params must contain. An additional optional field in params is 'parallel_flag', defined in the <strong>Input</strong> section below.</p>
+<h4 id="input-1">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">projs</td>
+<td align="left">[N,T,P] array of Radon transform data. P slices, each slice containing T projections of length N.</td>
+</tr>
+<tr class="even">
+<td align="left">params</td>
+<td align="left">Struct containing fields defined in the <strong>Input</strong> section of <a href="#cset">cset</a>, and the optional field parallel_flag described below.</td>
+</tr>
+<tr class="odd">
+<td align="left">.parallel_flag</td>
+<td align="left">Boolean value indicating if the CS-ET algorithm should perform the 2D slice reconstructions in parallel using MATLAB's parfor structure.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-1">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">recs</td>
+<td align="left">[M,N,P] tomographic reconstruction volume. In agreement with the coordinate system typically used in electron microscopy, M is the reconstruction depth (z dimension), N is the reconstruction width (x dimension), P is the reconstruction length (y dimension).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cset_parameters"><a href="#cset_parameters">cset_parameters</a></h2>
+<p><strong>cset_parameters</strong> creates a struct containing all of the parameters needed to perform a 2D or 3D CS-ET reconstruction.</p>
+<h4 id="usage-2">Usage</h4>
+<p>params = <strong>cset_parameters</strong>(b, theta, M, N, mu, lambda, gamma, kappa,<br />n_inner, n_outer, parallel_flag, cg_tol, max_cgiter, gpu_flag, im_flag, anim_flag) creates struct (params) with the first ten required fields ('b', ..., 'n_outer'), as well as any of the optional fields. Field names are the same as the names of this function's inputs.<br />'<br />params = <strong>cset_parameters</strong>(recdata, mu, lambda, gamma, kappa, n_inner, n_outer, parallel_flag, cg_tol, max_cgiter, gpu_flag, im_flag, anim_flag) creates the same output struct, but uses the input struct (recdata), which already has fields .b, .theta, .M, and .N, to create those same fields in (params). All other inputs are identical to the previous usage.</p>
+<h4 id="input-2">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">b</td>
+<td align="left">Scalar reconstruction background value.</td>
+</tr>
+<tr class="even">
+<td align="left">theta</td>
+<td align="left">[T,1] vector of measurement angles.</td>
+</tr>
+<tr class="odd">
+<td align="left">M</td>
+<td align="left">Reconstruction depth (z dimension, 1st index).</td>
+</tr>
+<tr class="even">
+<td align="left">N</td>
+<td align="left">Reconstruction width (x dimension, 2nd index).</td>
+</tr>
+<tr class="odd">
+<td align="left">mu</td>
+<td align="left">Split-Bregman step-size parameter.</td>
+</tr>
+<tr class="even">
+<td align="left">lambda</td>
+<td align="left">Split-Bregman TV regularization hyperparameter.</td>
+</tr>
+<tr class="odd">
+<td align="left">gamma</td>
+<td align="left">Split-Bregman Identity L1 regularization hyperparameter.</td>
+</tr>
+<tr class="even">
+<td align="left">kappa</td>
+<td align="left">Split-Bregman L1(DWT) regularization hyperparameter</td>
+</tr>
+<tr class="odd">
+<td align="left">n_inner</td>
+<td align="left">Split-Bregman number of inner loop iterations.</td>
+</tr>
+<tr class="even">
+<td align="left">n_outer</td>
+<td align="left">Split-Bregman number of outer loop iterations.</td>
+</tr>
+<tr class="odd">
+<td align="left">parallel_flag</td>
+<td align="left">(OPTIONAL=false) If true, run multiple 2D reconstructions in parallel using parfor.</td>
+</tr>
+<tr class="even">
+<td align="left">cg_tol</td>
+<td align="left">(OPTIONAL=1e-4) Conjugate gradient stopping tolerance.</td>
+</tr>
+<tr class="odd">
+<td align="left">max_cgiter</td>
+<td align="left">(OPTIONAL=12) Conjugate gradient max iterations before termination.</td>
+</tr>
+<tr class="even">
+<td align="left">gpu_flag</td>
+<td align="left">(OPTIONAL=true) If true, use CUDA Radon and adjoint Radon transforms.</td>
+</tr>
+<tr class="odd">
+<td align="left">im_flag</td>
+<td align="left">(OPTIONAL=false) If true, display CS-ET reconstruction after each update iteration.</td>
+</tr>
+<tr class="even">
+<td align="left">anim_flag</td>
+<td align="left">(OPTIONAL=false) If true, <a href="#cset">cset</a> returns an array containing each iteration of the reconstruction. Useful for creating animations.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-2">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">params</td>
+<td align="left">Struct containing a field for each of the inputs, each with the same name as the corresponding input and containing the same data.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="get_projs"><a href="#get_projs">get_projs</a></h2>
+<p><strong>get_projs</strong> reads in a TIF, MRC, or MAT file containing preprocessed STEM tilt series data, along with an additional struct containing information necessary for producing a tomographic reconstruction.</p>
+<h4 id="usage-3">Usage</h4>
+<p>[projs, recdata] = <strong>get_projs</strong>(projs_name, recdata_name) reads in TIF, MRC or MAT file named (projs_name), along with additional data from MAT file (recdata_name). Output (projs) is an [N,T,P] array projection data (P projections, each with T measurements each of length N). Output (recdata) is a struct containing five fields: .theta, .M, .N, .P, .b.</p>
+<p>[projs, recdata] = <strong>get_projs</strong>() reads in TIF, MRC or MAT files with the default names: 'tilt.mrc'/'tilt.tif'/'tilt.mat' and 'recdata.mat'. This should work if you've already called <a href="#setup">setup</a> with arguments to add a data directory to the search path.</p>
+<h4 id="input-3">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">projs_name</td>
+<td align="left">(OPTIONAL, default='tilt.*<strong>') Name of the TIF, MRC, or MAT tilt series file to read in. If none is provided, the default is automatically determines the appropriate file extension.<br />recdata_name | (OPTIONAL, default='recdata.mat') Name of the MAT file containing the recdata struct, which holds other data required for performing a reconstruction. See (recdata)'s description below in </strong>Output** for an explanation of the fields.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-3">Output</h4>
+<p>Variable | Description<br />--- | ---<br />projs | [N,T,P] array of projection data (P projections, each with T measurements each of length N).<br />recdata | Struct containing the five fields .theta, .M, .N, .P, .b, described below:<br /> .theta | Tx1 vector of projection angles.<br /> .M | Reconstruction depth (z dimension).<br /> .N | Reconstruction width (x dimension).<br /> .P | Reconstruction length (y dimension).<br /> .b | Reconstruction background value.</p>
+<hr />
+<h2 id="radon3"><a href="#radon3">radon3</a></h2>
+<p><strong>radon3</strong> Computes the Radon transform (projections) of a 3D dataset for a given set of projection angles, using the <a href="https://github.com/astra-toolbox/astra-toolbox/">ASTRA Toolbox</a>. Supports CPU as well as CUDA GPU computation.</p>
+<h4 id="usage-4">Usage</h4>
+<p>projs = <strong>radon3</strong>(data, theta) computes the Radon transform of each 2D slice of input (data) along the third dimension of (data), at each of the angles specified in theta.</p>
+<p>projs = <strong>radon3</strong>(data, theta, num_detectors) does the same, but specifies the number of projection detectors (i.e. the width of the Radon projections) in num_detectors.</p>
+<p>projs = <strong>radon3</strong>(data, theta, num_detectors, gpu_flag) does the same, but specifies whether to use ASTRA's CUDA tools to perform the computation by passing the boolean input gpu_flag.</p>
+<p>projs = <strong>radon3</strong>(data, theta, num_detectors, gpu_flag, ss_level) does the same, but specifies the level of supersampling to use for ASTRA's CUDA-driven Radon transform.</p>
+<h4 id="input-4">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">data</td>
+<td align="left">[M,N,P] array containing a volume to be projected into a tilt series.</td>
+</tr>
+<tr class="even">
+<td align="left">theta</td>
+<td align="left">[T,1] vector of Radon transform projection</td>
+</tr>
+<tr class="odd">
+<td align="left">num_detectors</td>
+<td align="left">(OPTIONAL=size(data,2)) Number of detectors for each projection (i.e. width of each projection, in pixels).</td>
+</tr>
+<tr class="even">
+<td align="left">gpu_flag</td>
+<td align="left">(OPTIONAL=true) If true, use the ASTRA CUDA tools to compute Radon transforms, if MATLAB detects a CUDA-capable device.</td>
+</tr>
+<tr class="odd">
+<td align="left">ss_level</td>
+<td align="left">(OPTIONAL=2) Level of supersampling for the Radon transform. Only does something if gpu_flag is true.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-4">Output</h4>
+<p>Variable | Description<br />--- | ---<br />tilt_series | [num_detectors,T,P] array. [num_detectors,T] Radon transform data for each of the P dimension-3 slices of (data).</p>
+<hr />
+<h2 id="setup"><a href="#setup">setup</a></h2>
+<p><strong>setup</strong> augments the MATLAB search path to include all directories needed by the CS-ET library.</p>
+<h4 id="usage-5">Usage</h4>
+<p><strong>setup</strong>() performs setup without adding any data folders to the search<br />path.</p>
+<p><strong>setup</strong>(data_name) performs setup and adds folder (data_name)<br />located in the default data directory, which can be set in the <em>settings.cfg</em> file.</p>
+<p><strong>setup</strong>(data_name, data_location) performs setup and adds folder (data_name) located in directory (data_location) to the search path.</p>
+<h4 id="input-5">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">data_name</td>
+<td align="left">(OPTIONAL) String specifying the name of the dataset to use. This name should be a folder in your default data directory, or in the directory specified with input (data_location).</td>
+</tr>
+<tr class="even">
+<td align="left">data_location</td>
+<td align="left">(OPTIONAL) String specifying the directory in which the folder (data_name) is located. Default value is specified in the file <em>settings.cfg</em>.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-5">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="setup_pool"><a href="#setup_pool">setup_pool</a></h2>
+<p><strong>setup_pool</strong> is a convenience wrapper for MATLAB's parpool() function, used to simplify working with parallelized and non-parallelized runs of the <a href="#cset3">cset3</a> and <a href="#wbp3">wbp3</a>.</p>
+<h4 id="usage-6">Usage</h4>
+<p><strong>setup_pool</strong>(parallel_flag, n) creates a MATLAB parallel pool with (n) workers if (parallel_flag) is true and no current pool with (n) workers exists.</p>
+<h4 id="input-6">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">parallel_flag</td>
+<td align="left">Boolean variable. If true, <strong>setup_pool</strong> will create a parallel pool if none exists with (n) workers.</td>
+</tr>
+<tr class="even">
+<td align="left">n</td>
+<td align="left">Number of workers in the created parallel pool.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-6">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="wbp3"><a href="#wbp3">wbp3</a></h2>
+<p><strong>wbp3</strong> performs a weighted backprojection (WBP) reconstruction of a 3D tomographic volume from parallel-beam STEM tilt series measurements. Uses MATLAB's Image Processing Toolbox.</p>
+<h4 id="usage-7">Usage</h4>
+<p><strong>wbp3</strong>(projs, params) performs a reconstruction from measurements (projs) using parameters saved in struct (params). See the <strong>Input</strong> section of <a href="#cset">cset</a> for a definition of the fields which run must contain. An additional optional field in run is (parallel_flag), defined in the <a href="#cset3">cset3</a> <strong>Input</strong> section.</p>
+<h4 id="input-7">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">projs</td>
+<td align="left">[N,T,P] array of Radon transform data. P slices, each slice containing T projections of length N.</td>
+</tr>
+<tr class="even">
+<td align="left">params</td>
+<td align="left">Struct containing information to set up the tomogram volume reconstruction.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-7">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">recs</td>
+<td align="left">[M,N,P] tomographic reconstruction volume. M is the reconstruction depth (z dimension), N is the reconstruction width (x dimension), P is the reconstruction length (y dimension).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><a href="#top"><strong>Top</strong></a></p>
+<h4 id="back-1"><a href="main.md#top">Back</a></h4>
+</body>
+</html>

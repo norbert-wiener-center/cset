@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="im-tools"><a href="#top">Im-tools</a></h1>
+<p><em>A collection of functions for creating and viewing images and animations of tomogram volumes.</em></p>
+<h4 id="back"><a href="main.md#top">Back</a></h4>
+<h2 id="contents"><a href="#contents">Contents</a></h2>
+<p><a href="#add_gaussian_noise">add_gaussian_noise</a></p>
+<p><a href="#create_xy_patches">create_xy_patches</a></p>
+<p><a href="#create_xz_patches">create_xz_patches</a></p>
+<p><a href="#imprep">imprep</a></p>
+<p><a href="#rec_to_tif">rec_to_tif</a></p>
+<p><a href="#snapshot">snapshot</a></p>
+<p><a href="#stack_to_gif">stack_to_gif</a></p>
+<p><a href="#sv">sv</a></p>
+<p><a href="#whiten">whiten</a></p>
+<hr />
+<h2 id="add_gaussian_noise"><a href="#add_gaussian_noise">add_gaussian_noise</a></h2>
+<p><strong>add_gaussian_noise</strong> adds Gaussian noise to an array, with a specified signal-to-noise ratio.</p>
+<h4 id="usage">Usage</h4>
+<p>xn = <strong>add_gaussian_noise</strong>(x, snr) adds Gaussian noise with variance equal to rms(x)^2 / (snr) to each component of the input array (x), where rms(x) is the root mean square of x.</p>
+<p>xn = <strong>add_gaussian_noise</strong>(x, snr, seed) does the same as the previous usage, but seeds MATLAB's RNG with input (seed), so that results may be easily reproduced.</p>
+<h4 id="input">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x</td>
+<td align="left">Array to which the noise is added.</td>
+</tr>
+<tr class="even">
+<td align="left">snr</td>
+<td align="left">Desired signal-to-noise ratio.</td>
+</tr>
+<tr class="odd">
+<td align="left">seed</td>
+<td align="left">(OPTIONAL) RNG seed.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">xn</td>
+<td align="left">Noisy output array.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="create_xy_patches"><a href="#create_xy_patches">create_xy_patches</a></h2>
+<p><strong>create_xy_patches</strong> creates one or more whitened x-y image patches from a<br />collection of tomograms. This is used for creating a visual comparison of<br />the outputs of multiple reconstruction methods from the same data.</p>
+<h4 id="usage-1">Usage</h4>
+<p>patches = <strong>create_xy_patches</strong>(x1, y1, z1, M, N, recs) creates 2D x-y<br />patches from each of the tomographic reconstructions in the cell array<br />recs. Each patch is taken from the x-y plane with z coordinate z1, and<br />spans indices (y1, x1):(y1 + M, x1 + N).</p>
+<p>patches = <strong>create_xy_patches</strong>(x1, y1, z1, z2, M, N, recs) creates 3D x-y<br />patches from each of the tomographic reconstructions in the cell array<br />recs. Each patch is a 3D stack of 2D x-y image patches with z coordinates<br />from z1:z2. Each 2D patch spans indices (y1, x1):(y1 + M, x1 + N). Useful<br />for making GIFs.</p>
+<h4 id="input-1">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="left">Top-left x coordinate of the patches.</td>
+</tr>
+<tr class="even">
+<td align="left">y1</td>
+<td align="left">Top-left y coordinate of the patches.</td>
+</tr>
+<tr class="odd">
+<td align="left">z1</td>
+<td align="left">Smallest (or only) z coordinate of the patches.</td>
+</tr>
+<tr class="even">
+<td align="left">z2</td>
+<td align="left">(OPTIONAL) Largest z coordinate of the patches.</td>
+</tr>
+<tr class="odd">
+<td align="left">M</td>
+<td align="left">Patch height.</td>
+</tr>
+<tr class="even">
+<td align="left">N</td>
+<td align="left">Patch width.</td>
+</tr>
+<tr class="odd">
+<td align="left">recs</td>
+<td align="left">[nt,1] cell array containing the 3D tomographic reconstructions from which the patches are extracted.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-1">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">patches</td>
+<td align="left">[nt,1] cell array containing the image patches.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="create_xz_patches"><a href="#create_xz_patches">create_xz_patches</a></h2>
+<p><strong>create_xz_patches</strong> creates one or more whitened x-z image patches from a collection of tomograms. This is used for creating a visual comparison of the outputs of multiple reconstruction methods from the same data.</p>
+<h4 id="usage-2">Usage</h4>
+<p>patches = <strong>create_xz_patches</strong>(x1, z1, y1, M, N, recs) creates 2D x-z<br />patches from each of the tomographic reconstructions in the cell array<br />recs. Each patch is taken from the x-z plane with y coordinate y1, and<br />spans indices (z1, x1):(z1 + M, x1 + N).</p>
+<p>patches = <strong>create_xz_patches</strong>(x1, z1, y1, y2, M, N, recs) creates 3D x-z<br />patches from each of the tomographic reconstructions in the cell array<br />recs. Each patch is a 3D stack of 2D x-z image patches with y coordinates<br />from y1:y2. Each 2D patch spans indices (z1, x1):(z1 + M, x1 + N). Useful for making GIFs.</p>
+<h4 id="input-2">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="left">Top-left x coordinate of the patches.</td>
+</tr>
+<tr class="even">
+<td align="left">z1</td>
+<td align="left">Top-left z coordinate of the patches.</td>
+</tr>
+<tr class="odd">
+<td align="left">y1</td>
+<td align="left">Smallest (or only) y coordinate of the patches.</td>
+</tr>
+<tr class="even">
+<td align="left">y2</td>
+<td align="left">(OPTIONAL) Largest y coordinate of the patches.</td>
+</tr>
+<tr class="odd">
+<td align="left">M</td>
+<td align="left">Patch height.</td>
+</tr>
+<tr class="even">
+<td align="left">N</td>
+<td align="left">Patch width.</td>
+</tr>
+<tr class="odd">
+<td align="left">recs</td>
+<td align="left">Cell containing the 3D tomographic reconstructions from which the patches are extracted.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-2">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">patches</td>
+<td align="left">Cell array containing the patches, one cell for each cell in input recs.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="imprep"><a href="#imprep">imprep</a></h2>
+<p><strong>imprep</strong> prepares an array for use with imwrite() by rescaling the array range to [0,1]. Array values can also be clamped to a specified range before rescaling.</p>
+<h4 id="usage-3">Usage</h4>
+<p>y = <strong>imprep</strong>(x) rescales the values in x to lie in the interval [0,1].</p>
+<p>y = <strong>imprep</strong>(x, lims) first clamps the values of x to the interval<br />[lims(1), lims(2)], then rescales the clamped array to the interval<br />[0,1].</p>
+<h4 id="input-3">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x</td>
+<td align="left">Input array. Values get rescaled to the interval [0,1].</td>
+</tr>
+<tr class="even">
+<td align="left">lims</td>
+<td align="left">(OPTIONAL) [2,1] vector of values to clamp x's range to before rescaling to [0,1].</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-3">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">y</td>
+<td align="left">Rescaled array, with values in the range [0,1].</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rec_to_tif"><a href="#rec_to_tif">rec_to_tif</a></h2>
+<p><strong>rec_to_tif</strong> saves a tomogram reconstruction volume as a TIF stack.</p>
+<h4 id="usage-4">Usage</h4>
+<p><strong>rec_to_tif</strong>(rec, file_name) saves the tomographic reconstruction (rec) to a<br />TIF file with name file_name.tif. Prior to saving, the tomogram is<br />rotated so that each element of the 3D TIF stack corresponds to one x-y<br />orthogonal view of the reconstruction volume.</p>
+<p><strong>rec_to_tif</strong>(rec, file_name, rot_flag) does the same as the previous<br />usage, but the boolean input rot_flag can be used to specify whether the<br />reconstruction volume should be rotated prior to saving. If not rotated,<br />each element of the 3D TIF stack corresponds to one x-z slice of the<br />reconstruction volume.</p>
+<p><strong>rec_to_tif</strong>(rec, file_name, rot_flag, contrast_scale) does the same as<br />the previous usage, but allows the user to clamp the range of the<br />reconstruction volume to an interval of values specified in input<br />contrast_scale.</p>
+<h4 id="input-4">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">rec</td>
+<td align="left">2D or 3D tomographic reconstruction volume.</td>
+</tr>
+<tr class="even">
+<td align="left">file_name</td>
+<td align="left">Name of the TIF file to be created.</td>
+</tr>
+<tr class="odd">
+<td align="left">rot_flag</td>
+<td align="left">(OPTIONAL=true) Specifies whether the reconstruction volume should be rotated around its x axis prior to saving.</td>
+</tr>
+<tr class="even">
+<td align="left">contrast_scale</td>
+<td align="left">(OPTIONAL) [2,1] vector. Specifies a range of values to which (rec)'s range should be clamped prior to saving.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-4">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="snapshot"><a href="#snapshot">snapshot</a></h2>
+<p><strong>snapshot</strong> saves an image of one 2D x-y slice of a 3D input, or<br />the entirety of a 2D input, to a PNG file.</p>
+<h4 id="usage-5">Usage</h4>
+<p><strong>snapshot</strong>(file_name, tom, idx) with ndims(tom)==3, rotates the 3D tomogram<br />(tom) about its x axis to obtain an x-y orthogonal view of the volume,<br />and saves an image of the x-y slice with z-coordinate (idx) to a PNG file<br />with name (file_name). If ndims(tom)==2, <strong>snapshot</strong> saves the 2D array<br />(tom) to a PNG file with name (file_name).</p>
+<p><strong>snapshot</strong>(file_name, tom, idx, min_val, max_val) does the same as the<br />previous usage, but first clamps the range of the tomogram values to<br />[min_val, max_val].</p>
+<h4 id="input-5">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">file_name</td>
+<td align="left">Name of the PNG file to which <strong>snapshot</strong> saves the indicated tomogram slice.</td>
+</tr>
+<tr class="even">
+<td align="left">tom</td>
+<td align="left">2D or 3D tomographic reconstruction. Could be any other data array of the same dimensions, I guess.</td>
+</tr>
+<tr class="odd">
+<td align="left">idx</td>
+<td align="left">If input (tom) is a 3D array, this specifies the z-coordinate of the x-y slice to save an image of.</td>
+</tr>
+<tr class="even">
+<td align="left">min_val</td>
+<td align="left">(OPTIONAL) minimum value to clamp (tom)'s range to.</td>
+</tr>
+<tr class="odd">
+<td align="left">max_val</td>
+<td align="left">(OPTIONAL) maximum value to clamp (tom)'s range to.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-5">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="stack_to_gif"><a href="#stack_to_gif">stack_to_gif</a></h2>
+<p><strong>stack_to_gif</strong> saves an [M,N,P] array as an [M,N] GIF with P or 2P-1 frames, depending on loop behavior.</p>
+<h4 id="usage-6">Usage</h4>
+<p><strong>stack_to_gif</strong>(file_name, stack) converts the [M,N,P] array (stack) into an<br />[M,N] gif with P frames, with file name (file_name) and a 1/15 second<br />delay between each frame.</p>
+<p><strong>stack_to_gif</strong>(file_name, stack, delay) does the same as the previous<br />usage, and allows the user to specify a custom inter-frame delay with<br />using input (delay).</p>
+<p><strong>stack_to_gif</strong>(file_name, stack, delay, final_delay) does the same as the<br />previous usage, and allows the user to specify a different inter-frame<br />delay after the final frame, allowing the animation to pause for a bit<br />longer at the final frame before looping.</p>
+<p><strong>stack_to_gif</strong>(file_name, stack, delay, final_delay, add_reversed) does the<br />same as the previous usage, and allows the user to set a boolean flag<br />(add_reversed) indicating if the GIF should cycle from the end frame to<br />the first frame in reverse.</p>
+<p><strong>stack_to_gif</strong>(file_name, stack, delay, final_delay, add_reversed, scale)<br />does the same as the previous usage, and allows the user to set a custom<br />scaling coefficient. The imwrite function requires all images ranges to<br />be in [0, 255], and will clamp values to that range implicitly. The<br />default function procedure is to scale the max value in (stack) to 255.</p>
+<h4 id="input-6">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">file_name</td>
+<td align="left">Name of the GIF to be created.</td>
+</tr>
+<tr class="even">
+<td align="left">stack</td>
+<td align="left">[M,N,P] array to be converted to a GIF.</td>
+</tr>
+<tr class="odd">
+<td align="left">delay</td>
+<td align="left">(OPTIONAL=1/15) Delay time between GIF frames, in seconds.</td>
+</tr>
+<tr class="even">
+<td align="left">final_delay</td>
+<td align="left">(OPTIONAL=3) Delay time after the final GIF frame before looping, in seconds.</td>
+</tr>
+<tr class="odd">
+<td align="left">add_reversed</td>
+<td align="left">(OPTIONAL=false) If true, the GIF will animate from the last frame in (stack) to the first frame in reversed order.</td>
+</tr>
+<tr class="even">
+<td align="left">scale</td>
+<td align="left">(OPTIONAL) Multiplicative scaling parameter applied to (stack).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-6">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="sv"><a href="#sv">sv</a></h2>
+<p><strong>sv</strong> (<strong>s</strong>lice <strong>v</strong>iewer) allows the user to scroll back and forth through a 3D<br />volume to view 2D slices, using horizontal motions of the mouse.</p>
+<h4 id="usage-7">Usage</h4>
+<p><strong>sv</strong>(vol) creates a new figure with callback functions associated with<br />mouse motion and key presses. Horizontal mouse motion will change which<br />2D slice of the 3D volume (vol) is displayed (indexed by its third<br />coordinate), while a key press will exit the function.</p>
+<p><strong>sv</strong>(vol, mag_level) does the same as the previous usage, but allows the<br />user to specify a magnification level through input (mag_level).<br />Magnification level should be specified as a percentage, e.g. the default<br />100% magnification corresponds to mag_level = 100.</p>
+<p><strong>sv</strong>(vol, mag_level, im_range) does the same as the previous usage, but<br />allows the user to specify a display range when displaying each slice<br />using imshow(). The default value is [min(vol(:)), max(vol(:))].</p>
+<h4 id="input-7">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">vol</td>
+<td align="left">A 3D array. <strong>sv</strong> displays slices of this array, indexed by its third coordinate.</td>
+</tr>
+<tr class="even">
+<td align="left">mag_level</td>
+<td align="left">(OPTIONAL=100) The magnification level of the displayed slices. Should be input as a percentage.</td>
+</tr>
+<tr class="odd">
+<td align="left">im_range</td>
+<td align="left">(OPTIONAL) The image display range, passed to imshow() and operates the same as the [low high] input to the imshow() function.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-7">Output</h4>
+<p>None</p>
+<hr />
+<h2 id="whiten"><a href="#whiten">whiten</a></h2>
+<p><strong>whiten</strong> transforms an input array to have zero mean and unit variance.</p>
+<h4 id="usage-8">Usage</h4>
+<p>w = <strong>whiten</strong>(x) transforms (x) to have zero mean and unit variance and outputs the transformed array as (w).</p>
+<h4 id="input-8">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x</td>
+<td align="left">An array of arbitrary dimensions.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-8">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">w</td>
+<td align="left">A transformed version of input (x) with zero mean and unit variance.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><a href="#top"><strong>Top</strong></a></p>
+<h4 id="back-1"><a href="main.md#top">Back</a></h4>
+</body>
+</html>

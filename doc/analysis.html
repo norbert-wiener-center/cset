@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="analysis"><a href="#top">Analysis</a></h1>
+<p><em>A set of functions for the analysis and comparison of tomographic reconstructions.</em></p>
+<h4 id="back"><a href="main.md#top">Back</a></h4>
+<h2 id="contents"><a href="#contents">Contents</a></h2>
+<p><a href="#align_tomogram_subvolume">align_tomogram_subvolume</a></p>
+<p><a href="#all_compressibilities">all_compressibilities</a></p>
+<p><a href="#compute_compressibility">compute_compressibility</a></p>
+<p><a href="#tv">tv</a></p>
+<hr />
+<h2 id="align_tomogram_subvolume"><a href="#align_tomogram_subvolume">align_tomogram_subvolume</a></h2>
+<p><strong>align_tomogram_subvolume</strong> uses cross-correlation to find a subvolume of one tomogram that optimally matches another, smaller tomogram.</p>
+<h4 id="usage">Usage</h4>
+<p>subvolume = <strong>align_tomogram_subvolume</strong>(tom_large, tom_small) returns a subvolume of tom_large with the same dimensions as tom_small, which maximizes the correlation between the whitened subvolume and the whitened tom_small. The returned (subvolume) is not whitened.</p>
+<p>[subvolume, xcorrs] = <strong>align_tomogram_subvolume</strong>(tom_large, tom_small) does the same as the previous usage, but also returns a vector (xcorrs) of cross-correlations between the whitened subvolumes and the whitened tom_small.</p>
+<h4 id="input">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">tom_large</td>
+<td align="left">The larger tomogram, size [M1,N,P] where M1 &gt; M2. <strong>align_tomogram_subvolume</strong> returns a subvolume of tom_large.</td>
+</tr>
+<tr class="even">
+<td align="left">tom_small</td>
+<td align="left">The smaller tomogram, size [M2,N,P] where M2 &lt; M1.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">subvolume</td>
+<td align="left">[M2,N,P] subvolume of tom_large which, when whitened, maximizes the correlation with the whitened tom_small out of all subvolumes of tom_large with the same dimensions.</td>
+</tr>
+<tr class="even">
+<td align="left">xcorrs</td>
+<td align="left">[M1-M2+1,1] vector of cross-correlations between all [M2,N,P] whitened subvolumes of tom_large and the whitened tom_small.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="all_compressibilities"><a href="#all_compressibilities">all_compressibilities</a></h2>
+<p><strong>all_compressibilities</strong> computes the relative compressibility of each 2D x-z slice<br />of an input 3D array in the identity, TV, and DB8 wavelet domains at a set of specified thresholds.</p>
+<h4 id="usage-1">Usage</h4>
+<p>[icomp, tvcomp, wcomp] = <strong>all_compressibilities</strong>(data, offset, thresholds) computes the compressibility of each 2D slice (third coordinate) of input 3D array (data) in the wavelet, TV, and identity domains at the thresholds specified in input vector (thresholds). The input (offset) is used to calculate the proper compressibility in the identity domain, in the case that it has a non-zero background value.</p>
+<h4 id="input-1">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">data</td>
+<td align="left">3D input array. This function calculates the 2D compressibility of each of the P slices data(:, :, 1), ..., data(:, :, P) in the identity, TV, and DB8 wavelet domains.</td>
+</tr>
+<tr class="even">
+<td align="left">offset</td>
+<td align="left">Scalar offset value, should be equal to the background value of the input (data).</td>
+</tr>
+<tr class="odd">
+<td align="left">thresholds</td>
+<td align="left">[T,1] vector of threshold values used in the compressibility calculations. Should be a proportion between 0 and 1.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-1">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">icomp</td>
+<td align="left">[T,P] array of compressibility values in the identity domain.</td>
+</tr>
+<tr class="even">
+<td align="left">tvcomp</td>
+<td align="left">[T,P] array of compressibility values in the TV domain.</td>
+</tr>
+<tr class="odd">
+<td align="left">wcomp</td>
+<td align="left">[T,P] array of compressibility values in the DB8 wavelet domain.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="compute_compressibility"><a href="#compute_compressibility">compute_compressibility</a></h2>
+<p><strong>compute_compressibility</strong> computes the relative compressibility of an input array for a set of specified thresholds.</p>
+<h4 id="usage-2">Usage</h4>
+<p>com_vals = <strong>compute_compressibility</strong>(u, thresholds) computes the relative<br />compressibility of array u for each of the relative thresholds specified<br />in (thresholds). For a given threshold t, this returns the proportion of elements of u with magnitude less than t*max(abs(u(:))).</p>
+<h4 id="input-2">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">u</td>
+<td align="left">Input array to calculate the compressibility of.</td>
+</tr>
+<tr class="even">
+<td align="left">thresholds</td>
+<td align="left">[T,1] vector of threshold values, specified as a proportion in the range (0,1).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-2">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">com_vals</td>
+<td align="left">[T,1] vector of compressibility values.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tv"><a href="#tv">tv</a></h2>
+<p><strong>tv</strong> computes TV(u), the anisotropic total variation of input 2D or 3D array (u). For 2D u, if <em>D<sub>x</sub>(u)</em> is the horizontal forward difference operator and <em>D<sub>y</sub>(u)</em> is the vertical forward difference operator, then</p>
+<p><img src="tveq.png" alt="Definition of TV(u)" /></p>
+<p>The definition for 3D u is analogous, with an additional forward difference term <em>D<sub>z</sub>(u)</em> in the third dimension.</p>
+<h4 id="usage-3">Usage</h4>
+<p>tvu = <strong>tv</strong>(u) returns TV(u), the anisotropic total variation of u.</p>
+<h4 id="input-3">Input</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">u</td>
+<td align="left">2D or 3D array.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-3">Output</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">tvu</td>
+<td align="left">TV(u), the anisotropic total variation of u.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><a href="#top"><strong>Top</strong></a></p>
+<h4 id="back-1"><a href="main.md#top">Back</a></h4>
+</body>
+</html>

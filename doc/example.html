@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="example"><a href="#top">Example</a></h1>
+<p><em>A collection of scripts exhibiting CS-ET and WBP reconstructions of the datsets used in</em> &quot;Compressed Sensing Electron Tomography for Determining Biological Structure&quot; <em>(Guay et al., 2016).</em></p>
+<h4 id="back"><a href="main.md#top">Back</a></h4>
+<h2 id="contents"><a href="#contents">Contents</a></h2>
+<p><a href="#example1_phantom_nano">example1_phantom_nano</a></p>
+<p><a href="#example2_phantom_simple">example2_phantom_simple</a></p>
+<p><a href="#example3_phantom_complex">example3_phantom_complex</a></p>
+<p><a href="#example4_brightfield">example4_brightfield</a></p>
+<p><a href="#example5_darkfield">example5_darkfield</a></p>
+<hr />
+<h2 id="example1_phantom_nano"><a href="#example1_phantom_nano">example1_phantom_nano</a></h2>
+<p><strong>example1_phantom_nano</strong> creates CS-ET and WBP reconstructions of the simulated nanoparticle phantom used in (Guay et al., 2016), from projections corrupted by low levels of noise.</p>
+<p>This phantom is 2D, and is therefore the fastest to reconstruct among the datasets used in the example scripts. This script creates an image of the 1x- and 3x-undersampled CS-ET and WBP reconstructions, in addition to computing reconstructions from 2x-undersampled projection data. The image generated may be compared with <a href="../example/example1_phantom-nano/example1_phantom_nano.png">example1_phantom_nano.png</a>.</p>
+<hr />
+<h2 id="example2_phantom_simple"><a href="#example2_phantom_simple">example2_phantom_simple</a></h2>
+<p><strong>example2_phantom_simple</strong> creates CS-ET and WBP reconstructions of the simple membrane phantom used in (Guay et al., 2016). Reconstructions are made from both noiseless and noisy projection data, to demonstrate the robustness to noise of the CS-ET algorithm.</p>
+<p>One cell of the script creates 2D CS-ET reconstructions of a single x-z slice of the simple membrane phantom, and creates an image of the reconstructions from noisy and noiseless projections. This image may be compared with <a href="../example/example2_phantom-simple/example2_phantom_simple.png">example2_phantom_simple.png</a>.</p>
+<p>Additional cells create full 3D CS-ET and WBP reconstructions of the simple membrane phantom at various levels of undersampling. <strong>Note</strong>: these cells may take a long time to run without GPU and multithreading support.</p>
+<hr />
+<h2 id="example3_phantom_complex"><a href="#example3_phantom_complex">example3_phantom_complex</a></h2>
+<p><strong>example3_phantom_complex</strong> creates CS-ET and WBP reconstructions of the complex membrane phantom used in (Guay et al., 2016). Reconstructions are made from both noiseless and noisy projection data, to demonstrate the robustness to noise of the CS-ET algorithm.</p>
+<p>One cell of the script creates 2D CS-ET reconstructions of a single x-z slice of the complex membrane phantom, and creates an image of the reconstructions from noiseless and noisy projection data. This image may be compared with <a href="../example/example3_phantom-complex/example3_phantom_complex.png">example3_phantom_complex.png</a>.</p>
+<p>Additional cells create full 3D CS-ET and WBP reconstructions of the complex membrane phantom at various levels of undersampling. <strong>Note</strong>: these cells may take a long time to run without GPU and multithreading support.</p>
+<hr />
+<h2 id="example4_brightfield"><a href="#example4_brightfield">example4_brightfield</a></h2>
+<p><strong>example4_brightfield</strong> creates CS-ET and WBP reconstructions of the experimental bright-field dataset used in (Guay et al., 2016). This dataset consists of a single-axis STEM tilt series taken in the bright-field imaging mode, preprocessed using <a href="http://bio3d.colorado.edu/imod/">IMOD</a>.</p>
+<p><strong>NOTE</strong>: This example script requires a dataset not included in this repository. You can download it from [<strong>INSERT LINK HERE</strong>]</p>
+<p>One cell of the script creates a 2D CS-ET reconstruction of a single x-z slice of the tomogram, and creates an image of this reconstruction. This image may be compared with <a href="../example/example4_brightfield/example4_brightfield.png">example4_brightfield.png</a>.</p>
+<p>An additional cell creates 3D CS-ET and WBP reconstructions of the full dataset, at various levels of undersampling. <strong>Note</strong>: This will take a really long time to run without ample GPU and multithreading support. As a reference, it takes about an hour to run using 26 parallel pool workers on a workstation with dual eight-core Intel(R) Xeon(R) processors and an NVIDIA Tesla(TM) K20C GPU.</p>
+<hr />
+<h2 id="example5_darkfield"><a href="#example5_darkfield">example5_darkfield</a></h2>
+<p><strong>example5_darkfield</strong> creates CS-ET and WBP reconstructions of the experimental dark-field dataset used in (Guay et al., 2016). This dataset consists of a single-axis STEM tilt series taken in the dark-field imaging mode, preprocessed using <a href="http://bio3d.colorado.edu/imod/">IMOD</a>.</p>
+<p><strong>NOTE</strong>: This example script requires a dataset not included in this repository. You can download it from [<strong>INSERT LINK HERE</strong>]</p>
+<p>One cell of the script creates a 2D CS-ET reconstruction of a single x-z slice of the tomogram, and creates an image of this reconstruction. This image may be compared with <a href="../example/example5_darkfield/example5_darkfield.png">example5_darkfield.png</a>.</p>
+<p>An additional cell creates 3D CS-ET and WBP reconstructions of the full dataset, at various levels of undersampling. <strong>Note</strong>: This will take a really long time to run without ample GPU and multithreading support. As a reference, it takes about an hour to run using 26 parallel pool workers on a workstation with dual eight-core Intel(R) Xeon(R) processors and an NVIDIA Tesla(TM) K20C GPU.</p>
+<hr />
+<p><a href="#top"><strong>Top</strong></a></p>
+<h4 id="back-1"><a href="main.md#top">Back</a></h4>
+</body>
+</html>

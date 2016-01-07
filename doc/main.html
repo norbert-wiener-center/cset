@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="documentation"><a href="#top">Documentation</a></h1>
+<p>The CS-ET library consists of three modules:</p>
+<ul>
+<li><p>The <a href="#core"><strong>core</strong></a> module contains the minimum set of functions needed to create 3D CS-ET tomographic reconstructions from (preprocessed) STEM tilt series, as well as 3D WBP reconstructions used for comparison.</p></li>
+<li><p>The <a href="#analysis"><strong>analysis</strong></a> module contains functions to analyze and compare tomograms.</p></li>
+<li><p>The <a href="#im-tools"><strong>im-tools</strong></a> module contains functions to view tomograms, as well as to create images and animations from tomograms.</p></li>
+</ul>
+<p>This repository also contains several <a href="#example"><strong>example</strong></a> scripts, which demonstrate CS-ET and WBP reconstructions of the datasets used in (Guay et al., 2016).</p>
+<p>Additionally, this repository contains several sample datasets, used by the example scripts and also useful for custom tests of the CS-ET algorithm.</p>
+<hr />
+<h2 id="core"><a href="#core"></a><a href="core.md#top">Core</a></h2>
+<h4 id="cset"><a href="core.md#cset">cset</a></h4>
+<p><strong>cset</strong> creates a 2D image array reconstructed from Radon transform data (i.e. parallel-beam STEM tilt series data) via CS-ET - an <em>L<sup>1</sup></em>-regularized least-squares reconstruction algorithm.</p>
+<h4 id="cset3"><a href="core.md#cset3">cset3</a></h4>
+<p><strong>cset3</strong> performs a CS-ET reconstruction of a 3D tomographic volume from a STEM tilt series, by decomposing the 3D volume into parallel 2D slices normal to the tilt series axis of rotation.</p>
+<h4 id="cset_parameters"><a href="core.md#cset_parameters">cset_parameters</a></h4>
+<p><strong>cset_parameters</strong> creates a struct containing all of the parameters needed to perform a 2D or 3D CS-ET reconstruction.</p>
+<h4 id="get_projs"><a href="core.md#get_projs">get_projs</a></h4>
+<p><strong>get_projs</strong> reads in a TIF, MRC, or MAT file containing preprocessed STEM tilt series data, along with an additional struct containing information necessary for producing a tomographic reconstruction.</p>
+<h4 id="radon3"><a href="core.md#radon3">radon3</a></h4>
+<p><strong>radon3</strong> Computes the Radon transform (projections) of a 3D dataset for a given set of projection angles, using the <a href="https://github.com/astra-toolbox/astra-toolbox/">ASTRA Toolbox</a>. Supports CPU as well as CUDA GPU computation.</p>
+<h4 id="setup"><a href="core.md#setup">setup</a></h4>
+<p><strong>setup</strong> augments the MATLAB search path to include all directories needed by the CS-ET library.</p>
+<h4 id="setup_pool"><a href="core.md#setup_pool">setup_pool</a></h4>
+<p><strong>setup_pool</strong> is a convenience wrapper for MATLAB's parpool() function, used to simplify working with parallelized and non-parallelized runs of the CS-ET algorithm.</p>
+<h4 id="wbp3"><a href="core.md#wbp3">wbp3</a></h4>
+<p><strong>wbp3</strong> performs a weighted backprojection (WBP) reconstruction of a 3D tomographic volume from parallel-beam STEM tilt series measurements. Uses MATLAB's Image Processing Toolbox.</p>
+<hr />
+<h2 id="analysis"><a href="#analysis"></a><a href="analysis.md#top">Analysis</a></h2>
+<h4 id="align_tomogram_subvolume"><a href="analysis.md#align_tomogram_subvolume">align_tomogram_subvolume</a></h4>
+<p><strong>align_tomogram_subvolume</strong> uses cross-correlation to find a subvolume of one tomogram that optimally matches another, smaller tomogram.</p>
+<h4 id="all_compressibilities"><a href="analysis.md#all_compressibilities">all_compressibilities</a></h4>
+<p><strong>all_compressibilities</strong> computes the relative compressibility of each 2D slice<br />(third coordinate) of an input 3D array in the identity, TV, and DB8<br />wavelet domains at a set of specified thresholds.</p>
+<h4 id="compute_compressibility"><a href="analysis.md#compute_compressibility">compute_compressibility</a></h4>
+<p><strong>compute_compressibility</strong> computes the relative compressibility of an input array for a set of specified thresholds.</p>
+<h4 id="tv"><a href="analysis.md#tv">tv</a></h4>
+<p><strong>tv</strong> computes TV(u), the anisotropic total variation of an input 2D or 3D array u.</p>
+<hr />
+<h2 id="im-tools"><a href="#im-tools"></a><a href="im-tools.md#top">Im-tools</a></h2>
+<h4 id="add_gaussian_noise"><a href="im-tools.md#add_gaussian_noise">add_gaussian_noise</a></h4>
+<p><strong>add_gaussian_noise</strong> adds Gaussian noise to an array, with a specified signal-to-noise ratio.</p>
+<h4 id="create_xy_patches"><a href="im-tools.md#create_xy_patches">create_xy_patches</a></h4>
+<p><strong>create_xy_patches</strong> creates one or more whitened x-y image patches from a<br />collection of tomograms. This is used for creating a visual comparison of<br />the outputs of multiple reconstruction methods from the same data.</p>
+<h4 id="create_xz_patches"><a href="im-tools.md#create_xz_patches">create_xz_patches</a></h4>
+<p><strong>create_xz_patches</strong> creates one or more whitened x-z image patches from a collection of tomograms. This is used for creating a visual comparison of the outputs of multiple reconstruction methods from the same data.</p>
+<h4 id="imprep"><a href="im-tools.md#imprep">imprep</a></h4>
+<p><strong>imprep</strong> prepares an array for use with imwrite() by rescaling the array range to [0,1]. Array values can also be clamped to a specified range before rescaling.</p>
+<h4 id="rec_to_tif"><a href="im-tools.md#rec_to_tif">rec_to_tif</a></h4>
+<p><strong>rec_to_tif</strong> saves a tomogram reconstruction volume as a TIF stack.</p>
+<h4 id="snapshot"><a href="im-tools.md#snapshot">snapshot</a></h4>
+<p><strong>snapshot</strong> saves an image of one 2D x-y slice of a 3D input, or<br />the entirety of a 2D input, to a PNG file.</p>
+<h4 id="stack_to_gif"><a href="im-tools.md#stack_to_gif">stack_to_gif</a></h4>
+<p><strong>stack_to_gif</strong> saves an [M,N,P] array as an [M,N] GIF with P or 2P-1 frames, depending on loop behavior.</p>
+<h4 id="sv"><a href="im-tools.md#sv">sv</a></h4>
+<p><strong>sv</strong> (<strong>s</strong>lice <strong>v</strong>iewer) allows the user to scroll back and forth through a 3D volume to view 2D slices, using horizontal motions of the mouse.</p>
+<h4 id="whiten"><a href="im-tools.md#whiten">whiten</a></h4>
+<p><strong>whiten</strong> transforms an input array to have zero mean and unit variance.</p>
+<hr />
+<h2 id="example"><a href="#example"></a><a href="example.md#top">Example</a></h2>
+<h4 id="example1_phantom_nano"><a href="example.md#example1_phantom_nano">example1_phantom_nano</a></h4>
+<p><strong>example1_phantom_nano</strong> creates CS-ET and WBP reconstructions of the simulated nanoparticle phantom used in (Guay et al., 2016).</p>
+<h4 id="example2_phantom_simple"><a href="example.md#example2_phantom_simple">example2_phantom_simple</a></h4>
+<p><strong>example2_phantom_simple</strong> creates CS-ET and WBP reconstructions of the simple membrane phantom used in (Guay et al., 2016).</p>
+<h4 id="example3_phantom_complex"><a href="example.md#example3_phantom_complex">example3_phantom_complex</a></h4>
+<p><strong>example3_phantom_complex</strong> creates CS-ET and WBP reconstructions of the complex membrane phantom used in (Guay et al., 2016).</p>
+<h4 id="example4_brightfield"><a href="example.md#example4_brightfield">example4_brightfield</a></h4>
+<p><strong>example4_brightfield</strong> creates CS-ET and WBP reconstructions of the experimental bright-field dataset used in (Guay et al., 2016).</p>
+<h4 id="example5_darkfield"><a href="example.md#example5_darkfield">example5_darkfield</a></h4>
+<p><strong>example5_darkfield</strong> creates CS-ET and WBP reconstructions of the experimental dark-field dataset used in (Guay et al., 2016).</p>
+<hr />
+<p><a href="#top"><strong>Top</strong></a></p>
+<h4 id="readme"><a href="../README.md">Readme</a></h4>
+<h4 id="home"><a href="https://github.com/heyitsguay/cset">Home</a></h4>
+</body>
+</html>

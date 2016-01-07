@@ -1,0 +1,14 @@
+# Script to simplify Git updates.
+gitpush.sh
+
+# Script to simplify remaking the doc html.
+redoc.sh
+
+# Vim/gedit backup files.
+*~
+
+# File tracking name changes from the previous CS-ET code.
+namechanges
+
+# Phantom tilt series files.
+tilt.mat
