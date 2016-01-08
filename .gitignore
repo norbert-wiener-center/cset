@@ -1,5 +1,6 @@
-# Script to simplify Git updates.
-gitpush.sh
+# Scripts to simplify Git updates.
+push
+allpush
 
 # Script to simplify remaking the doc html.
 redoc.sh

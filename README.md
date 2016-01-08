@@ -4,7 +4,7 @@ This is a MATLAB project for compressed sensing (CS) reconstruction of electron 
 ## Example
 ```Matlab
 % Adds the necessary directories to the search path, including a 
-% path to the dataset in the directory '../cset-data/phantom-complex'.
+% path to the dataset in the directory 'data/phantom-complex'.
 setup('phantom-complex');
 
 % Load the (simulated ET) projection data for this dataset, along
